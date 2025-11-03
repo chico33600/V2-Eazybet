@@ -1,10 +1,12 @@
 'use client';
 
-import { Home, User } from 'lucide-react';
+import { Home, User, Trophy, Gift } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
+  { icon: Trophy, label: 'Classement', path: '/classement' },
+  { icon: Gift, label: 'Airdrop', path: '/airdrop' },
   { icon: User, label: 'Profil', path: '/profil' },
 ];
 

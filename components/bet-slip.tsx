@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useBetStore, useUserStore, useUserBetsStore, useMatchStatusStore, UserBet } from '@/lib/store';
+import { useBetStore, useUserStore, useUserBetsStore, useMatchStatusStore, useBetSlipUIStore, UserBet } from '@/lib/store';
 import { Coins, Diamond, X } from 'lucide-react';
 
 export function BetSlip() {
@@ -9,7 +9,7 @@ export function BetSlip() {
   const { coins, diamonds, deductCoins, deductDiamonds, addDiamonds } = useUserStore();
   const { addBet } = useUserBetsStore();
   const { setMatchStatus } = useMatchStatusStore();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { isExpanded, setIsExpanded } = useBetSlipUIStore();
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState<'coins' | 'diamonds'>('coins');
 

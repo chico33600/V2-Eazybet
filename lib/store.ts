@@ -165,3 +165,32 @@ export const useMatchStatusStore = create<MatchStatusState>()(
     }
   )
 );
+
+interface BetSlipUIState {
+  isExpanded: boolean;
+  setIsExpanded: (isExpanded: boolean) => void;
+}
+
+export const useBetSlipUIStore = create<BetSlipUIState>((set) => ({
+  isExpanded: false,
+  setIsExpanded: (isExpanded) => set({ isExpanded }),
+}));
+
+type HomeTab = 'upcoming' | 'played' | 'finished';
+
+interface NavigationState {
+  activeHomeTab: HomeTab;
+  setActiveHomeTab: (tab: HomeTab) => void;
+}
+
+export const useNavigationStore = create<NavigationState>()(
+  persist(
+    (set) => ({
+      activeHomeTab: 'upcoming',
+      setActiveHomeTab: (tab) => set({ activeHomeTab: tab }),
+    }),
+    {
+      name: 'easybet-navigation-storage',
+    }
+  )
+);

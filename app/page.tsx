@@ -7,12 +7,12 @@ import { BetSlip } from '@/components/bet-slip';
 import { BetTicket } from '@/components/bet-ticket';
 import { mockMatches } from '@/lib/mock-data';
 import { getFilteredMatches } from '@/lib/match-utils';
-import { useMatchStatusStore, useUserBetsStore } from '@/lib/store';
+import { useMatchStatusStore, useUserBetsStore, useNavigationStore } from '@/lib/store';
 import { startMatchSimulation, stopMatchSimulation } from '@/lib/match-simulator';
 import { Ticket, Trophy } from 'lucide-react';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'played' | 'finished'>('upcoming');
+  const { activeHomeTab: activeTab, setActiveHomeTab: setActiveTab } = useNavigationStore();
   const [mounted, setMounted] = useState(false);
   const matchStatusStore = useMatchStatusStore();
   const betsStore = useUserBetsStore();

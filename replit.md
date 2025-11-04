@@ -189,22 +189,4 @@ All pages are wrapped by AppLayout and render only their content:
 **Icons**:
 - lucide-react
 
-**Backend API**:
-- Node.js backend in `/backend` folder (separate from frontend)
-- Express.js REST API with TypeScript
-- CORS enabled for frontend communication
-- Supabase clients configured:
-  - `supabaseAnon`: Client with anonymous access (SUPABASE_ANON_KEY)
-  - `supabaseAdmin`: Admin client with service role (SUPABASE_SERVICE_ROLE_KEY)
-- Environment variables managed via `.env` file
-- Development server runs on port 3001 (http://0.0.0.0:3001)
-- API Routes:
-  - `GET /api/health` - Basic health check
-  - `GET /api/health/supabase` - Supabase connection test
-- File structure:
-  - `src/index.ts` - Main Express server
-  - `src/supabase.ts` - Supabase client configuration
-  - `src/routes/health.ts` - Health check routes
-- Scripts: `npm run dev` (development), `npm run build` (compile), `npm start` (production)
-
-**Note**: The application currently operates entirely client-side with mock data and local storage. Backend API is created and configured but not yet connected to the frontend. Supabase credentials need to be added to `backend/.env`.
+**Note**: The application currently operates entirely client-side with mock data and local storage. No backend configured yet.

@@ -46,7 +46,11 @@ Preferred communication style: Simple, everyday language.
 - Shared AppLayout component wraps all pages with persistent UI elements
 - Bottom tab navigation with 4 main sections: Home, Classement (Leaderboard), Airdrop, Profil (Profile)
 - Fixed header (HeaderCoins) showing user's coin and diamond balances on all pages
-- Floating action button for tap-to-earn modal accessible from any page
+- Floating action button with conditional visibility:
+  - Only shows on Home page's "À venir" tab
+  - Automatically hides when bet slip opens or when user has active selections
+  - Visibility persists correctly across page navigations using store-based state
+  - Hydration-safe rendering prevents SSR flash issues
 - Centralized TapToEarnModal state management in AppLayout
 - SPA-style navigation with smooth transitions between sections
 
@@ -97,6 +101,16 @@ Preferred communication style: Simple, everyday language.
 - Overrides default match statuses from mock data
 - Methods: `setMatchStatus`, `getMatchStatus`, `clearAllStatuses`
 - Persisted to local storage
+
+**Bet Slip UI Store** (`useBetSlipUIStore`):
+- Manages the expanded/collapsed state of the bet slip
+- Methods: `setIsExpanded`
+- Persisted to local storage to maintain state across page navigations
+
+**Navigation Store** (`useNavigationStore`):
+- Tracks the active tab on the Home page (upcoming/played/finished)
+- Methods: `setActiveHomeTab`
+- Persisted to local storage to remember user's last tab selection
 
 ### Mock Data Structure
 

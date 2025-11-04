@@ -45,7 +45,12 @@ Preferred communication style: Simple, everyday language.
 **Navigation Structure**:
 - Shared AppLayout component wraps all pages with persistent UI elements
 - Bottom tab navigation with 4 main sections: Home, Classement (Leaderboard), Airdrop, Profil (Profile)
-- Fixed header (HeaderCoins) showing user's coin and diamond balances on all pages
+- Fixed header (HeaderCoins) with clickable elements:
+  - Avatar button (top-left): navigates to /profil with hover scale effect
+  - Coin button: opens tap-to-earn modal (existing functionality)
+  - Diamond button (top-right): navigates to /airdrop with hover border glow
+  - All navigation uses Next.js router for SPA-style transitions
+  - Aria-labels for accessibility compliance
 - Floating action button with conditional visibility:
   - Only shows on Home page's "À venir" tab
   - Automatically hides when bet slip opens or when user has active selections

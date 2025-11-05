@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useUserBetsStore, useMatchStatusStore } from '@/lib/store';
-import { User, Settings, Trophy, TrendingUp, Calendar, Award, RotateCcw } from 'lucide-react';
+import { User, Settings, Trophy, TrendingUp, Calendar, Award, RotateCcw, X } from 'lucide-react';
 
 const stats = [
   { icon: Trophy, label: 'Paris gagnés', value: '8', color: 'text-green-400' },
@@ -11,8 +13,10 @@ const stats = [
 ];
 
 export default function ProfilPage() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const betsStore = useUserBetsStore();
   const matchStatusStore = useMatchStatusStore();
+  const router = useRouter();
 
   const handleResetAll = () => {
     if (window.confirm('Voulez-vous vraiment réinitialiser tous vos paris et l\'historique ? Cette action est irréversible.')) {
@@ -22,7 +26,12 @@ export default function ProfilPage() {
     }
   };
 
+  const handleLogout = () => {
+    router.push('/auth');
+  };
+
   return (
+    <>
     <div className="max-w-2xl mx-auto px-4">
           <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-6 card-shadow">
             <div className="flex items-center gap-4 mb-4">
@@ -33,7 +42,10 @@ export default function ProfilPage() {
                 <h2 className="text-2xl font-bold text-white mb-1">Utilisateur</h2>
                 <p className="text-white/50">Membre depuis mars 2025</p>
               </div>
-              <button className="p-2 hover:bg-[#30363D] rounded-xl transition-colors">
+              <button 
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 hover:bg-[#30363D] rounded-xl transition-colors"
+              >
                 <Settings className="text-white/50" size={24} />
               </button>
             </div>
@@ -126,5 +138,44 @@ export default function ProfilPage() {
             </p>
           </div>
         </div>
+
+      {isSettingsOpen && (
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black/70 z-50"
+          onClick={() => setIsSettingsOpen(false)}
+        >
+          <div 
+            className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Paramètres du compte</h2>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-2 hover:bg-[#30363D] rounded-xl transition-colors"
+              >
+                <X className="text-white/50" size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleLogout}
+                className="w-full bg-[#C1322B] hover:bg-[#A02822] text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Se déconnecter
+              </button>
+
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-full bg-[#30363D] hover:bg-[#3D4551] text-white font-bold py-4 px-6 rounded-xl transition-all"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

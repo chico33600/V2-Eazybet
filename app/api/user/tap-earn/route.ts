@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase-client';
 import { requireAuth, createErrorResponse, createSuccessResponse } from '@/lib/auth-utils';
 
-const TOKENS_PER_TAP = 10;
+const TOKENS_PER_TAP = 1;
 const MAX_TAPS_PER_DAY = 100;
 
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     const totalTapsToday = todayTaps?.reduce((sum, tap) => sum + tap.tokens_earned, 0) || 0;
-    const totalTapsCountToday = totalTapsToday / TOKENS_PER_TAP;
+    const totalTapsCountToday = totalTapsToday;
 
     if (totalTapsCountToday >= MAX_TAPS_PER_DAY) {
       return createErrorResponse('Daily tap limit reached. Come back tomorrow!', 429);
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
     }
 
     const totalTapsToday = todayTaps?.reduce((sum, tap) => sum + tap.tokens_earned, 0) || 0;
-    const totalTapsCountToday = totalTapsToday / TOKENS_PER_TAP;
+    const totalTapsCountToday = totalTapsToday;
 
     return createSuccessResponse({
       taps_used: totalTapsCountToday,

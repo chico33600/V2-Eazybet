@@ -151,7 +151,7 @@ export async function earnTokens(taps: number = 1) {
     .gte('created_at', today.toISOString());
 
   const totalTapsToday = todayTaps?.reduce((sum, tap) => sum + tap.tokens_earned, 0) || 0;
-  const totalTapsCountToday = totalTapsToday / 10;
+  const totalTapsCountToday = totalTapsToday;
 
   if (totalTapsCountToday >= 100) {
     throw new Error('Limite quotidienne atteinte');
@@ -159,7 +159,7 @@ export async function earnTokens(taps: number = 1) {
 
   const remainingTaps = 100 - totalTapsCountToday;
   const actualTaps = Math.min(taps, remainingTaps);
-  const tokensEarned = actualTaps * 10;
+  const tokensEarned = actualTaps * 1;
 
   console.log(`[earnTokens] Tokens to earn: ${tokensEarned}`);
 

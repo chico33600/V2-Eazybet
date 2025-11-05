@@ -88,7 +88,7 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
 
     setFlyingCoins(newCoins);
 
-    const tokensToEarn = tapCount * 10;
+    const tokensToEarn = tapCount * 1;
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('tokens-earned', {

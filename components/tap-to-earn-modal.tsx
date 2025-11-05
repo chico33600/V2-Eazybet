@@ -90,8 +90,6 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
 
     const tokensToEarn = tapCount * 10;
 
-    updateTokensOptimistic(tokensToEarn);
-
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('tokens-earned', {
         detail: { amount: tokensToEarn }
@@ -99,10 +97,20 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
     }
 
     try {
-      await earnTokens(tapCount);
+      console.log(`[Tap-to-Earn] Starting collection: ${tapCount} taps = ${tokensToEarn} tokens`);
+
+      updateTokensOptimistic(tokensToEarn);
+
+      const result = await earnTokens(tapCount);
+      console.log('[Tap-to-Earn] API result:', result);
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      console.log('[Tap-to-Earn] Refreshing profile...');
       await refreshProfile();
+      console.log('[Tap-to-Earn] Collection complete');
     } catch (error: any) {
-      console.error('Error earning tokens:', error);
+      console.error('[Tap-to-Earn] Error earning tokens:', error);
       updateTokensOptimistic(-tokensToEarn);
     }
 

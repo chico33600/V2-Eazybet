@@ -47,7 +47,7 @@ export function HeaderCoins({ onCoinsClick }: HeaderCoinsProps) {
   }, [mounted]);
 
   useEffect(() => {
-    if (!mounted || coins === 0) return;
+    if (!mounted) return;
 
     if (displayCoins !== coins && coins > displayCoins) {
       const diff = coins - displayCoins;
@@ -66,7 +66,7 @@ export function HeaderCoins({ onCoinsClick }: HeaderCoinsProps) {
       }, 30);
 
       return () => clearInterval(interval);
-    } else if (displayCoins !== coins && coins < displayCoins) {
+    } else if (displayCoins !== coins) {
       setDisplayCoins(coins);
     }
   }, [coins, displayCoins, mounted]);

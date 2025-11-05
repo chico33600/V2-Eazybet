@@ -139,6 +139,8 @@ export async function earnTokens(taps: number = 1) {
     throw new Error('Non authentifié');
   }
 
+  console.log(`[earnTokens] Called with ${taps} taps`);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -159,6 +161,8 @@ export async function earnTokens(taps: number = 1) {
   const actualTaps = Math.min(taps, remainingTaps);
   const tokensEarned = actualTaps * 10;
 
+  console.log(`[earnTokens] Tokens to earn: ${tokensEarned}`);
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('tokens')
@@ -169,10 +173,20 @@ export async function earnTokens(taps: number = 1) {
     throw new Error('Profil non trouvé');
   }
 
-  await supabase
+  const oldBalance = profile.tokens;
+  const newBalance = oldBalance + tokensEarned;
+
+  console.log(`[earnTokens] Old balance: ${oldBalance}, Adding: ${tokensEarned}, New balance: ${newBalance}`);
+
+  const { error: updateError } = await supabase
     .from('profiles')
-    .update({ tokens: profile.tokens + tokensEarned })
+    .update({ tokens: newBalance })
     .eq('id', user.id);
+
+  if (updateError) {
+    console.error('[earnTokens] Update error:', updateError);
+    throw new Error('Erreur lors de la mise à jour des jetons');
+  }
 
   await supabase
     .from('tap_earnings')
@@ -181,9 +195,11 @@ export async function earnTokens(taps: number = 1) {
       tokens_earned: tokensEarned,
     });
 
+  console.log(`[earnTokens] Successfully updated tokens to ${newBalance}`);
+
   return {
     tokens_earned: tokensEarned,
-    new_balance: profile.tokens + tokensEarned,
+    new_balance: newBalance,
     remaining_taps: remainingTaps - actualTaps,
   };
 }

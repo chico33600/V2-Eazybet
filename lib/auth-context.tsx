@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (data && !error) {
+        console.log(`[fetchProfile] Loaded profile with ${data.tokens} tokens`);
         setProfile(data);
       }
     } catch (err) {
@@ -47,9 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateTokensOptimistic = (amount: number) => {
     if (profile) {
+      const newTokens = profile.tokens + amount;
+      console.log(`[Optimistic Update] Current: ${profile.tokens}, Adding: ${amount}, New: ${newTokens}`);
       setProfile({
         ...profile,
-        tokens: profile.tokens + amount
+        tokens: newTokens
       });
     }
   };

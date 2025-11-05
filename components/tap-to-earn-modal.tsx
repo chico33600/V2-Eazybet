@@ -88,6 +88,14 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
 
     setFlyingCoins(newCoins);
 
+    const tokensToEarn = tapCount * 10;
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tokens-earned', {
+        detail: { amount: tokensToEarn }
+      }));
+    }
+
     try {
       await earnTokens(tapCount);
       await refreshProfile();

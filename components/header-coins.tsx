@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Coins, Diamond } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeaderCoinsProps {
   onCoinsClick?: () => void;
@@ -11,6 +12,8 @@ interface HeaderCoinsProps {
 
 export function HeaderCoins({ onCoinsClick }: HeaderCoinsProps) {
   const [mounted, setMounted] = useState(false);
+  const [displayCoins, setDisplayCoins] = useState(0);
+  const [floatingGain, setFloatingGain] = useState<number | null>(null);
   const { profile } = useAuth();
   const router = useRouter();
 
@@ -20,6 +23,45 @@ export function HeaderCoins({ onCoinsClick }: HeaderCoinsProps) {
 
   const coins = mounted && profile ? profile.tokens : 0;
   const diamonds = mounted && profile ? profile.diamonds : 0;
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const handleTokensEarned = (event: CustomEvent) => {
+      const { amount } = event.detail;
+      setFloatingGain(amount);
+
+      setTimeout(() => {
+        setFloatingGain(null);
+      }, 1500);
+    };
+
+    window.addEventListener('tokens-earned', handleTokensEarned as EventListener);
+    return () => window.removeEventListener('tokens-earned', handleTokensEarned as EventListener);
+  }, [mounted]);
+
+  useEffect(() => {
+    if (displayCoins !== coins && coins > displayCoins) {
+      const diff = coins - displayCoins;
+      const steps = Math.min(diff, 20);
+      const increment = diff / steps;
+      let current = displayCoins;
+
+      const interval = setInterval(() => {
+        current += increment;
+        if (current >= coins) {
+          setDisplayCoins(coins);
+          clearInterval(interval);
+        } else {
+          setDisplayCoins(Math.round(current));
+        }
+      }, 30);
+
+      return () => clearInterval(interval);
+    } else if (displayCoins !== coins) {
+      setDisplayCoins(coins);
+    }
+  }, [coins, displayCoins]);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-4 pb-3 header-blur border-b border-[#30363D]/30">
@@ -38,10 +80,37 @@ export function HeaderCoins({ onCoinsClick }: HeaderCoinsProps) {
           <button
             onClick={onCoinsClick}
             aria-label="Cliquer pour gagner des jetons"
-            className="flex items-center gap-1.5 bg-[#1C2128]/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg border border-[#30363D] hover:bg-[#1C2128] hover:border-[#F5C144]/30 transition-all active:scale-95"
+            className="relative flex items-center gap-1.5 bg-[#1C2128]/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg border border-[#30363D] hover:bg-[#1C2128] hover:border-[#F5C144]/30 transition-all active:scale-95"
           >
             <Coins size={16} className="text-[#F5C144]" />
-            <span className="text-white font-bold text-xs">{coins.toFixed(0)}</span>
+            <motion.span
+              key={displayCoins}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.3 }}
+              className="text-white font-bold text-xs"
+            >
+              {displayCoins.toFixed(0)}
+            </motion.span>
+
+            <AnimatePresence>
+              {floatingGain && (
+                <motion.div
+                  initial={{ opacity: 0, y: 0, x: 0, scale: 0.5 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: -40, x: 5, scale: [0.5, 1.2, 1] }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.5, ease: 'easeOut' }}
+                  className="absolute -top-2 right-0 pointer-events-none"
+                >
+                  <div className="text-green-400 font-black text-base drop-shadow-lg whitespace-nowrap"
+                       style={{
+                         textShadow: '0 0 10px rgba(74, 222, 128, 0.8), 0 0 20px rgba(74, 222, 128, 0.4)'
+                       }}>
+                    +{floatingGain}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
 
           <button

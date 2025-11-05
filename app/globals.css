@@ -72,6 +72,34 @@
     box-shadow: 0 0 15px rgba(193, 50, 43, 0.3), 0 0 30px rgba(193, 50, 43, 0.1);
   }
 
+  .glow-diamond {
+    box-shadow: 0 0 20px rgba(42, 132, 255, 0.6), 0 0 40px rgba(42, 132, 255, 0.3);
+    animation: pulse-diamond 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-diamond {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(42, 132, 255, 0.6), 0 0 40px rgba(42, 132, 255, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(42, 132, 255, 0.8), 0 0 60px rgba(42, 132, 255, 0.5);
+    }
+  }
+
+  .text-glow-diamond {
+    text-shadow: 0 0 10px rgba(42, 132, 255, 0.8), 0 0 20px rgba(42, 132, 255, 0.4);
+    animation: text-pulse-diamond 2s ease-in-out infinite;
+  }
+
+  @keyframes text-pulse-diamond {
+    0%, 100% {
+      text-shadow: 0 0 10px rgba(42, 132, 255, 0.8), 0 0 20px rgba(42, 132, 255, 0.4);
+    }
+    50% {
+      text-shadow: 0 0 15px rgba(42, 132, 255, 1), 0 0 30px rgba(42, 132, 255, 0.6);
+    }
+  }
+
   .card-shadow {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
   }

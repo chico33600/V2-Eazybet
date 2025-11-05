@@ -113,7 +113,7 @@ export function ActiveComboBetCard({ bet }: ActiveComboBetCardProps) {
           </div>
           <p className="text-green-400 font-bold text-lg">{bet.potential_win}</p>
           {currency === 'tokens' && bet.potential_diamonds > 0 && (
-            <p className="text-white/40 text-xs">+ {bet.potential_diamonds} diamants</p>
+            <p className="text-[#2A84FF] text-xs font-bold text-glow-diamond">+ {bet.potential_diamonds} diamants</p>
           )}
           {currency === 'diamonds' && (
             <p className="text-white/40 text-xs">diamants</p>

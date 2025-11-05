@@ -3,16 +3,36 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { Trophy, TrendingUp, Calendar, LogOut } from 'lucide-react';
+import { Trophy, TrendingUp, Calendar, LogOut, RefreshCcw } from 'lucide-react';
+import { resetUserAccount } from '@/lib/api-client';
 
 export default function ProfilPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { profile, signOut } = useAuth();
+  const [isResetting, setIsResetting] = useState(false);
+  const { profile, signOut, refreshProfile } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
     await signOut();
     router.push('/auth');
+  };
+
+  const handleReset = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir réinitialiser votre compte ? Tous vos paris et gains seront effacés. Cette action est irréversible.')) {
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      await resetUserAccount();
+      await refreshProfile();
+      alert('Compte réinitialisé avec succès !');
+      router.push('/');
+    } catch (error: any) {
+      alert(error.message || 'Erreur lors de la réinitialisation');
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   if (!profile) {
@@ -123,6 +143,17 @@ export default function ProfilPage() {
                 <span className="text-white/30 font-bold">🔒</span>
               </div>
             </div>
+          </div>
+
+          <div className="mt-6">
+            <button
+              onClick={handleReset}
+              disabled={isResetting}
+              className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 rounded-xl p-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <RefreshCcw size={20} className={isResetting ? 'animate-spin' : ''} />
+              {isResetting ? 'Réinitialisation...' : 'Réinitialiser le compte'}
+            </button>
           </div>
 
         </div>

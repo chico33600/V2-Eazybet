@@ -79,7 +79,7 @@ export function ActiveBetCard({ bet }: ActiveBetCardProps) {
             <p className="text-white/50 text-xs">Gain potentiel</p>
           </div>
           <p className="text-green-400 font-bold text-lg">{bet.potential_win}</p>
-          <p className="text-white/40 text-xs">+ {bet.potential_diamonds} diamants</p>
+          <p className="text-[#2A84FF] text-xs font-bold text-glow-diamond">+ {bet.potential_diamonds} diamants</p>
         </div>
       </div>
     </div>

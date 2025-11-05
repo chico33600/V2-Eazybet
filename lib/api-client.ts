@@ -355,6 +355,22 @@ export async function getUserBets(status?: 'active' | 'history'): Promise<any[]>
   return allBets;
 }
 
+export async function resetUserAccount() {
+  const response = await fetch('/api/user/reset', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erreur lors de la réinitialisation');
+  }
+
+  return response.json();
+}
+
 export async function earnTokens(taps: number = 1) {
   console.log('[earnTokens] ========== START ==========');
   console.log('[earnTokens] Called with taps:', taps);

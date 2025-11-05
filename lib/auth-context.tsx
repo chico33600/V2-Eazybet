@@ -25,24 +25,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log(`[fetchProfile] Fetching profile for user ${userId}`);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      if (data && !error) {
+      if (error) {
+        console.error('[fetchProfile] Error:', error);
+        return;
+      }
+
+      if (data) {
         console.log(`[fetchProfile] Loaded profile with ${data.tokens} tokens`);
         setProfile(data);
+      } else {
+        console.log('[fetchProfile] No profile data returned');
       }
     } catch (err) {
-      console.error('Error fetching profile:', err);
+      console.error('[fetchProfile] Exception:', err);
     }
   };
 
   const refreshProfile = async () => {
+    console.log('[refreshProfile] Called, user:', user?.id);
     if (user) {
       await fetchProfile(user.id);
+    } else {
+      console.log('[refreshProfile] No user to refresh');
     }
   };
 

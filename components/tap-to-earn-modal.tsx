@@ -99,19 +99,14 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
     try {
       console.log(`[Tap-to-Earn] Starting collection: ${tapCount} taps = ${tokensToEarn} tokens`);
 
-      updateTokensOptimistic(tokensToEarn);
-
       const result = await earnTokens(tapCount);
       console.log('[Tap-to-Earn] API result:', result);
-
-      await new Promise(resolve => setTimeout(resolve, 300));
 
       console.log('[Tap-to-Earn] Refreshing profile...');
       await refreshProfile();
       console.log('[Tap-to-Earn] Collection complete');
     } catch (error: any) {
       console.error('[Tap-to-Earn] Error earning tokens:', error);
-      updateTokensOptimistic(-tokensToEarn);
     }
 
     setTimeout(() => {

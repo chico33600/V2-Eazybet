@@ -163,30 +163,18 @@ export async function earnTokens(taps: number = 1) {
 
   console.log(`[earnTokens] Tokens to earn: ${tokensEarned}`);
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tokens')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  if (!profile) {
-    throw new Error('Profil non trouvé');
-  }
-
-  const oldBalance = profile.tokens;
-  const newBalance = oldBalance + tokensEarned;
-
-  console.log(`[earnTokens] Old balance: ${oldBalance}, Adding: ${tokensEarned}, New balance: ${newBalance}`);
-
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .update({ tokens: newBalance })
-    .eq('id', user.id);
+  const { data: newBalance, error: updateError } = await supabase
+    .rpc('increment_tokens', {
+      p_user_id: user.id,
+      p_amount: tokensEarned
+    });
 
   if (updateError) {
-    console.error('[earnTokens] Update error:', updateError);
+    console.error('[earnTokens] RPC error:', updateError);
     throw new Error('Erreur lors de la mise à jour des jetons');
   }
+
+  console.log(`[earnTokens] Tokens incremented by ${tokensEarned}, new balance: ${newBalance}`);
 
   await supabase
     .from('tap_earnings')

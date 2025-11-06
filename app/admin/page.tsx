@@ -142,9 +142,10 @@ export default function AdminPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Panel Admin</h1>
             <p className="text-sm text-white/50">Résoudre les matchs</p>
+            <p className="text-xs text-yellow-400 mt-1">Debug: Role={profile?.role || 'undefined'}, isAdmin={isAdmin.toString()}</p>
           </div>
         </div>
-        {isAdmin && (
+        {isAdmin ? (
           <button
             onClick={handleSyncRealMatches}
             disabled={syncing}
@@ -153,6 +154,8 @@ export default function AdminPage() {
             <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? 'Synchronisation...' : 'Rafraîchir les matchs réels'}
           </button>
+        ) : (
+          <div className="text-xs text-red-400">Bouton admin masqué (pas admin)</div>
         )}
       </div>
 

@@ -22,7 +22,9 @@ export function MatchCard({ match }: MatchCardProps) {
 
   const normalizeTeamName = (name: string) => {
     if (!name) return "";
-    const normalized = name.trim().toLowerCase();
+    const normalized = name.trim().toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
     // 🇫🇷 Ligue 1
     if (normalized.includes("marseille")) return "Olympique de Marseille";

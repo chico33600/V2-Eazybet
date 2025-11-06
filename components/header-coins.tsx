@@ -91,7 +91,7 @@ export function HeaderCoins({ onCoinsClick }: HeaderCoinsProps) {
           </button>
 
           <h1 className="text-2xl font-black tracking-tight select-none" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-            <span className="bg-gradient-to-r from-[#C1322B] to-[#E84545] bg-clip-text text-transparent">Eazy</span>
+            <span className="bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] bg-clip-text text-transparent">Eazy</span>
             <span className="text-white">bet</span>
           </h1>
         </div>

@@ -134,7 +134,15 @@ export default function ProfilPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-6 card-shadow">
+      <div className="flex items-center justify-between mb-6 pt-4">
+        <h1 className="text-3xl font-black text-white tracking-tight" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+          <span className="bg-gradient-to-r from-[#C1322B] to-[#E84545] bg-clip-text text-transparent">Eazy</span>
+          <span className="text-white">bet</span>
+        </h1>
+        <div className="text-white/50 text-sm font-semibold">Profil</div>
+      </div>
+
+      <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-6 card-shadow">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#C1322B] to-[#A02822] flex items-center justify-center text-white text-3xl font-bold">
                 {profile.username?.charAt(0).toUpperCase() || 'U'}

@@ -26,7 +26,7 @@ export function TabsMatchs({ activeTab, onTabChange }: TabsMatchsProps) {
         onClick={() => onTabChange('upcoming')}
         className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 ease-in-out ${
           activeTab === 'upcoming'
-            ? 'bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] text-white shadow-lg'
+            ? 'bg-gradient-to-r from-[#C1322B] to-[#A02822] text-white shadow-lg glow-red'
             : 'text-white/60 hover:text-white hover:bg-[#30363D]/30'
         }`}
       >
@@ -37,7 +37,7 @@ export function TabsMatchs({ activeTab, onTabChange }: TabsMatchsProps) {
         onClick={handlePlayedClick}
         className={`relative flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 ease-in-out ${
           activeTab === 'played'
-            ? 'bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] text-white shadow-lg'
+            ? 'bg-gradient-to-r from-[#C1322B] to-[#A02822] text-white shadow-lg glow-red'
             : 'text-white/60 hover:text-white hover:bg-[#30363D]/30'
         }`}
       >
@@ -53,7 +53,7 @@ export function TabsMatchs({ activeTab, onTabChange }: TabsMatchsProps) {
         onClick={handleFinishedClick}
         className={`relative flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 ease-in-out ${
           activeTab === 'finished'
-            ? 'bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] text-white shadow-lg'
+            ? 'bg-gradient-to-r from-[#C1322B] to-[#A02822] text-white shadow-lg glow-red'
             : 'text-white/60 hover:text-white hover:bg-[#30363D]/30'
         }`}
       >

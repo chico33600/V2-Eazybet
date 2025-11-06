@@ -198,9 +198,9 @@ export function MatchCard({ match }: MatchCardProps) {
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => handleOddsClick('home', match.homeOdds)}
-                className={`rounded-2xl py-3 px-2 transition-all duration-300 ease-in-out active:scale-95 hover:scale-105 backdrop-blur-md shadow-lg ${
+                className={`rounded-2xl py-3 px-2 transition-all duration-200 ease-in-out active:scale-95 hover:scale-105 backdrop-blur-md shadow-lg ${
                   isSelected('home')
-                    ? 'bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] text-white'
+                    ? 'bg-[#C1322B] text-white'
                     : 'bg-white/20 hover:bg-white/30 text-white border border-white/20'
                 }`}
               >
@@ -214,9 +214,9 @@ export function MatchCard({ match }: MatchCardProps) {
 
               <button
                 onClick={() => handleOddsClick('draw', match.drawOdds)}
-                className={`rounded-2xl py-3 px-2 transition-all duration-300 ease-in-out active:scale-95 hover:scale-105 backdrop-blur-md shadow-lg ${
+                className={`rounded-2xl py-3 px-2 transition-all duration-200 ease-in-out active:scale-95 hover:scale-105 backdrop-blur-md shadow-lg ${
                   isSelected('draw')
-                    ? 'bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] text-white'
+                    ? 'bg-[#C1322B] text-white'
                     : 'bg-white/20 hover:bg-white/30 text-white border border-white/20'
                 }`}
               >
@@ -230,9 +230,9 @@ export function MatchCard({ match }: MatchCardProps) {
 
               <button
                 onClick={() => handleOddsClick('away', match.awayOdds)}
-                className={`rounded-2xl py-3 px-2 transition-all duration-300 ease-in-out active:scale-95 hover:scale-105 backdrop-blur-md shadow-lg ${
+                className={`rounded-2xl py-3 px-2 transition-all duration-200 ease-in-out active:scale-95 hover:scale-105 backdrop-blur-md shadow-lg ${
                   isSelected('away')
-                    ? 'bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] text-white'
+                    ? 'bg-[#C1322B] text-white'
                     : 'bg-white/20 hover:bg-white/30 text-white border border-white/20'
                 }`}
               >

@@ -11,7 +11,7 @@ export function Header() {
       <div className="max-w-2xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-            <span className="bg-gradient-to-r from-[#C1322B] via-[#8A2BE2] to-[#007BFF] bg-clip-text text-transparent">Eazy</span>
+            <span className="bg-gradient-to-r from-[#C1322B] to-[#E84545] bg-clip-text text-transparent">Eazy</span>
             <span className="text-white">bet</span>
           </h1>
           <div className="flex items-center gap-3">

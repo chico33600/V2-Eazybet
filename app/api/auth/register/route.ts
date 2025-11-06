@@ -28,7 +28,15 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (existingProfile) {
-      return createErrorResponse('Username already taken', 400);
+      return createErrorResponse('Ce pseudo est déjà utilisé.', 400);
+    }
+
+    // Check if email already exists
+    const { data: existingUser } = await supabase.auth.admin.listUsers();
+    const emailExists = existingUser?.users?.some(user => user.email === email);
+
+    if (emailExists) {
+      return createErrorResponse('Cet e-mail est déjà utilisé.', 400);
     }
 
     // Create user account
@@ -43,6 +51,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
+      if (error.message.includes('already registered') || error.message.includes('already exists')) {
+        return createErrorResponse('Ce pseudo ou cet e-mail est déjà utilisé.', 400);
+      }
       return createErrorResponse(error.message, 400);
     }
 

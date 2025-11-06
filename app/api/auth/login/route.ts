@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     // Validation
     if (!email || !password) {
-      return createErrorResponse('Email and password are required', 400);
+      return createErrorResponse('E-mail et mot de passe requis', 400);
     }
 
     // Sign in
@@ -19,11 +19,20 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return createErrorResponse('Invalid email or password', 401);
+      if (error.message.includes('Invalid login credentials')) {
+        return createErrorResponse('Identifiants incorrects', 401);
+      }
+      if (error.message.includes('Email not confirmed')) {
+        return createErrorResponse('E-mail non confirmé', 401);
+      }
+      if (error.message.includes('User not found')) {
+        return createErrorResponse('Compte introuvable', 401);
+      }
+      return createErrorResponse('Identifiants incorrects', 401);
     }
 
     if (!data.user || !data.session) {
-      return createErrorResponse('Login failed', 500);
+      return createErrorResponse('Échec de la connexion', 500);
     }
 
     // Get user profile

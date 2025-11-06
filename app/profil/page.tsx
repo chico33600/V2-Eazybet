@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { Trophy, TrendingUp, Calendar, LogOut, RefreshCcw } from 'lucide-react';
+import { Trophy, TrendingUp, Calendar, LogOut, RefreshCcw, Settings } from 'lucide-react';
 import { resetUserAccount } from '@/lib/api-client';
 
 export default function ProfilPage() {
@@ -62,13 +62,22 @@ export default function ProfilPage() {
                 <h2 className="text-2xl font-bold text-white mb-1">{profile.username}</h2>
                 <p className="text-white/50">Membre depuis {new Date(profile.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-[#30363D] rounded-xl transition-colors"
-                title="Déconnexion"
-              >
-                <LogOut className="text-white/50" size={24} />
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => router.push('/profil/edit')}
+                  className="p-2 hover:bg-[#30363D] rounded-xl transition-colors"
+                  title="Modifier le profil"
+                >
+                  <Settings className="text-white/50" size={24} />
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-[#30363D] rounded-xl transition-colors"
+                  title="Déconnexion"
+                >
+                  <LogOut className="text-white/50" size={24} />
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

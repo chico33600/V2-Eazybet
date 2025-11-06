@@ -11,6 +11,10 @@ export default function AuthPage() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const router = useRouter();
   const { signIn, signUp } = useAuth();
 
@@ -41,6 +45,32 @@ export default function AuthPage() {
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue');
       setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de l\'envoi');
+      }
+
+      setResetSuccess(true);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de l\'envoi');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -110,9 +140,20 @@ export default function AuthPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-white font-bold mb-2 text-sm">
-                Mot de passe
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-white font-bold text-sm">
+                  Mot de passe
+                </label>
+                {mode === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-[#C1322B] hover:text-[#F5C144] text-xs font-bold transition-colors"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                )}
+              </div>
               <input
                 id="password"
                 type="password"
@@ -161,6 +202,83 @@ export default function AuthPage() {
             </p>
           </div>
         </div>
+
+        {showForgotPassword && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-3xl p-8 card-shadow max-w-md w-full">
+              {resetSuccess ? (
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">E-mail envoyé !</h3>
+                  <p className="text-white/70 mb-6">
+                    Si cet e-mail existe, vous recevrez un lien de réinitialisation dans quelques instants.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetSuccess(false);
+                      setResetEmail('');
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-[#C1322B] to-[#8B1F1A] text-white font-bold rounded-xl hover:shadow-lg transition-all"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-bold text-white mb-4">Mot de passe oublié</h3>
+                  <p className="text-white/70 mb-6">
+                    Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+                  </p>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div>
+                      <label className="block text-white/70 text-sm mb-2">E-mail</label>
+                      <input
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        required
+                        className="w-full px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-xl text-white focus:outline-none focus:border-[#C1322B] transition-colors"
+                      />
+                    </div>
+
+                    {error && (
+                      <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-3">
+                        <p className="text-red-400 text-sm">{error}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(false);
+                          setError('');
+                          setResetEmail('');
+                        }}
+                        className="flex-1 py-3 bg-[#30363D] text-white font-bold rounded-xl hover:bg-[#40464D] transition-all"
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={resetLoading}
+                        className="flex-1 py-3 bg-gradient-to-r from-[#C1322B] to-[#8B1F1A] text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {resetLoading ? 'Envoi...' : 'Envoyer'}
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

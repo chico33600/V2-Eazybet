@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase-client';
 import { Trophy, TrendingUp, Calendar, LogOut, Settings, ExternalLink } from 'lucide-react';
 
 interface Achievement {
@@ -26,10 +27,26 @@ export default function ProfilPage() {
 
   const loadAchievements = async () => {
     try {
-      const response = await fetch('/api/achievements');
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      if (!token) {
+        console.error('No auth token');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch('/api/achievements', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
+      console.log('Achievements data:', data);
       if (data.achievements) {
         setAchievements(data.achievements);
+      } else if (data.error) {
+        console.error('API Error:', data.error);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des réalisations:', error);
@@ -44,9 +61,20 @@ export default function ProfilPage() {
     }
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      if (!token) {
+        alert('Session expirée, veuillez vous reconnecter');
+        return;
+      }
+
       const response = await fetch('/api/achievements/claim', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({ achievementId })
       });
 
@@ -151,6 +179,10 @@ export default function ProfilPage() {
           {loading ? (
             <div className="text-center py-8">
               <p className="text-white/50">Chargement...</p>
+            </div>
+          ) : achievements.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-white/50">Aucune réalisation disponible</p>
             </div>
           ) : (
             <div className="space-y-3 mb-32">

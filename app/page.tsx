@@ -22,7 +22,6 @@ export default function Home() {
   const [activeBets, setActiveBets] = useState<any[]>([]);
   const [finishedBets, setFinishedBets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [matchMode, setMatchMode] = useState<'fictif' | 'real'>('fictif');
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -39,7 +38,7 @@ export default function Home() {
   useEffect(() => {
     async function loadMatches() {
       setLoading(true);
-      const data = await fetchAvailableMatches(matchMode);
+      const data = await fetchAvailableMatches('real');
       setMatches(data);
       setLoading(false);
     }
@@ -68,14 +67,14 @@ export default function Home() {
       setMatches([]);
       setLoading(false);
     }
-  }, [activeTab, user, matchMode]);
+  }, [activeTab, user]);
 
   useEffect(() => {
     const handleBetPlaced = async () => {
       setHasNewBet(true);
 
       if (activeTab === 'upcoming') {
-        const data = await fetchAvailableMatches(matchMode);
+        const data = await fetchAvailableMatches('real');
         setMatches(data);
       } else if (activeTab === 'played') {
         const data = await getUserBets('active');
@@ -92,30 +91,6 @@ export default function Home() {
       <div className="max-w-2xl mx-auto">
         <div className="px-4">
           <TabsMatchs activeTab={activeTab} onTabChange={setActiveTab} />
-          {activeTab === 'upcoming' && (
-            <div className="flex gap-2 mt-4 mb-4">
-              <button
-                onClick={() => setMatchMode('fictif')}
-                className={`flex-1 py-2 px-4 rounded-xl font-bold transition-all ${
-                  matchMode === 'fictif'
-                    ? 'bg-gradient-to-r from-[#C1322B] to-[#8B1F1A] text-white shadow-lg'
-                    : 'bg-[#1C2128] border border-[#30363D] text-white/60 hover:text-white'
-                }`}
-              >
-                🎮 Matchs Fictifs
-              </button>
-              <button
-                onClick={() => setMatchMode('real')}
-                className={`flex-1 py-2 px-4 rounded-xl font-bold transition-all ${
-                  matchMode === 'real'
-                    ? 'bg-gradient-to-r from-[#C1322B] to-[#8B1F1A] text-white shadow-lg'
-                    : 'bg-[#1C2128] border border-[#30363D] text-white/60 hover:text-white'
-                }`}
-              >
-                ⚽ Matchs Réels
-              </button>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -265,30 +240,6 @@ export default function Home() {
     <div className="max-w-2xl mx-auto">
       <div className="px-4">
         <TabsMatchs activeTab={activeTab} onTabChange={setActiveTab} />
-        {activeTab === 'upcoming' && (
-          <div className="flex gap-2 mt-4">
-            <button
-              onClick={() => setMatchMode('fictif')}
-              className={`flex-1 py-2 px-4 rounded-xl font-bold transition-all ${
-                matchMode === 'fictif'
-                  ? 'bg-gradient-to-r from-[#C1322B] to-[#8B1F1A] text-white shadow-lg'
-                  : 'bg-[#1C2128] border border-[#30363D] text-white/60 hover:text-white'
-              }`}
-            >
-              🎮 Matchs Fictifs
-            </button>
-            <button
-              onClick={() => setMatchMode('real')}
-              className={`flex-1 py-2 px-4 rounded-xl font-bold transition-all ${
-                matchMode === 'real'
-                  ? 'bg-gradient-to-r from-[#C1322B] to-[#8B1F1A] text-white shadow-lg'
-                  : 'bg-[#1C2128] border border-[#30363D] text-white/60 hover:text-white'
-              }`}
-            >
-              ⚽ Matchs Réels
-            </button>
-          </div>
-        )}
       </div>
 
       {renderContent()}

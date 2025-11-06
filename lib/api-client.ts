@@ -4,7 +4,7 @@ import type { Match, Bet } from './supabase-client';
 export async function fetchMatches(status?: string): Promise<Match[]> {
   let query = supabase
     .from('matches')
-    .select('*')
+    .select('*, team_a_badge, team_b_badge, team_a_banner, team_b_banner, team_a_stadium, team_b_stadium')
     .order('match_date', { ascending: true });
 
   if (status) {
@@ -30,7 +30,7 @@ export async function fetchAvailableMatches(mode?: 'fictif' | 'real'): Promise<M
 
   let query = supabase
     .from('matches')
-    .select('*')
+    .select('*, team_a_badge, team_b_badge, team_a_banner, team_b_banner, team_a_stadium, team_b_stadium')
     .eq('status', 'upcoming')
     .gt('match_date', now.toISOString())
     .lte('match_date', sevenDaysFromNow.toISOString())
@@ -324,7 +324,13 @@ export async function getUserBets(status?: 'active' | 'history'): Promise<any[]>
         competition,
         status,
         result,
-        match_date
+        match_date,
+        team_a_badge,
+        team_b_badge,
+        team_a_banner,
+        team_b_banner,
+        team_a_stadium,
+        team_b_stadium
       )
     `)
     .eq('user_id', user.id);
@@ -343,7 +349,13 @@ export async function getUserBets(status?: 'active' | 'history'): Promise<any[]>
           competition,
           status,
           result,
-          match_date
+          match_date,
+          team_a_badge,
+          team_b_badge,
+          team_a_banner,
+          team_b_banner,
+          team_a_stadium,
+          team_b_stadium
         )
       )
     `)

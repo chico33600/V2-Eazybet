@@ -121,6 +121,41 @@ export default function AdminPage() {
     }
   }
 
+  async function handleAddDemoMatches() {
+    if (!confirm('Ajouter 12 matchs de démonstration ?')) return;
+
+    setSyncing(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        alert('Erreur : Vous devez être connecté');
+        return;
+      }
+
+      const response = await fetch('/api/matches/add-demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Matchs de démo ajoutés !\n${data.stats.added} matchs ajoutés\n${data.stats.errors} erreurs`);
+        await loadMatches();
+      } else {
+        alert(`Erreur : ${data.error}`);
+      }
+    } catch (error: any) {
+      alert(`Erreur : ${error.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-4">
@@ -146,14 +181,24 @@ export default function AdminPage() {
           </div>
         </div>
         {isAdmin ? (
-          <button
-            onClick={handleSyncRealMatches}
-            disabled={syncing}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Synchronisation...' : 'Rafraîchir les matchs réels'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddDemoMatches}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Ajout...' : 'Matchs Demo'}
+            </button>
+            <button
+              onClick={handleSyncRealMatches}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Synchronisation...' : 'Sync API'}
+            </button>
+          </div>
         ) : (
           <div className="text-xs text-red-400">Bouton admin masqué (pas admin)</div>
         )}

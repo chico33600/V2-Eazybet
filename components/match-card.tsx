@@ -23,6 +23,8 @@ export function MatchCard({ match }: MatchCardProps) {
   const normalizeTeamName = (name: string) => {
     if (!name) return "";
     const normalized = name.trim().toLowerCase();
+
+    // 🇫🇷 Ligue 1
     if (normalized.includes("marseille")) return "Olympique de Marseille";
     if (normalized.includes("lyon")) return "Olympique Lyonnais";
     if (normalized.includes("lille")) return "LOSC Lille";
@@ -35,6 +37,23 @@ export function MatchCard({ match }: MatchCardProps) {
     if (normalized.includes("lens")) return "RC Lens";
     if (normalized.includes("paris") && normalized.includes("fc")) return "Paris FC";
     if (normalized.includes("paris") || normalized.includes("psg")) return "Paris Saint-Germain";
+
+    // 🇪🇸 Liga
+    if (normalized.includes("barcelone") || normalized.includes("barcelona")) return "FC Barcelone";
+    if (normalized.includes("madrid") && normalized.includes("real")) return "Real Madrid";
+    if (normalized.includes("atletico") && normalized.includes("madrid")) return "Atletico Madrid";
+    if (normalized.includes("bilbao")) return "Atletico Bilbao";
+    if (normalized.includes("betis")) return "Real Betis";
+    if (normalized.includes("sociedad")) return "Real Sociedad";
+    if (normalized.includes("seville") || normalized.includes("sevilla")) return "FC Seville";
+    if (normalized.includes("celta")) return "Celta Vigo";
+    if (normalized.includes("alaves")) return "Deportivo Alaves";
+    if (normalized.includes("espanyol")) return "Espanyol Barcelone";
+    if (normalized.includes("getafe")) return "Getafe";
+    if (normalized.includes("girona")) return "Girona";
+    if (normalized.includes("valence") || normalized.includes("valencia")) return "Valencia";
+    if (normalized.includes("villarreal")) return "Villarreal";
+
     return name;
   };
 

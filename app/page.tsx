@@ -102,6 +102,8 @@ export default function Home() {
 
   const leagueGroups = matches.reduce((acc, match) => {
     const existing = acc.find((group) => group.league === match.league);
+    const matchDate = new Date(match.match_date);
+
     const formattedMatch = {
       id: match.id,
       homeTeam: match.team_a,
@@ -110,7 +112,15 @@ export default function Home() {
       homeOdds: match.odds_a,
       drawOdds: match.odds_draw,
       awayOdds: match.odds_b,
-      kickoffTime: new Date(match.match_date).getTime(),
+      kickoffTime: matchDate.getTime(),
+      datetime: matchDate.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      status: match.status || 'upcoming',
     };
 
     if (existing) {

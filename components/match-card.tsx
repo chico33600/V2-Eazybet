@@ -45,7 +45,9 @@ export function MatchCard({ match }: MatchCardProps) {
         <div></div>
 
         <div>
-          <p className="text-white/70 text-xs mb-2">{match.datetime}</p>
+          <div className="bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 mb-3 inline-block">
+            <p className="text-white text-xs font-medium">{match.datetime}</p>
+          </div>
           <div className="flex items-center justify-between mb-4">
             <div className="text-center flex-1">
               <p className="text-white font-bold text-lg">{match.homeTeam}</p>

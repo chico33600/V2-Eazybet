@@ -1,39 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { Trophy, TrendingUp, Calendar, LogOut, RefreshCcw, Settings } from 'lucide-react';
-import { resetUserAccount } from '@/lib/api-client';
+import { Trophy, TrendingUp, Calendar, LogOut, Settings, ExternalLink } from 'lucide-react';
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  reward: number;
+  link: string | null;
+  claimed: boolean;
+}
 
 export default function ProfilPage() {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [loading, setLoading] = useState(true);
   const { profile, signOut, refreshProfile } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    loadAchievements();
+  }, []);
+
+  const loadAchievements = async () => {
+    try {
+      const response = await fetch('/api/achievements');
+      const data = await response.json();
+      if (data.achievements) {
+        setAchievements(data.achievements);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des réalisations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClaimReward = async (achievementId: string, link: string | null) => {
+    if (link) {
+      window.open(link, '_blank');
+    }
+
+    try {
+      const response = await fetch('/api/achievements/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ achievementId })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || 'Erreur lors de la réclamation');
+        return;
+      }
+
+      alert(`+${data.reward} 💰 ajoutés à votre compte !`);
+      await refreshProfile();
+      await loadAchievements();
+      window.dispatchEvent(new Event('profile-updated'));
+    } catch (error: any) {
+      alert('Erreur lors de la réclamation de la récompense');
+    }
+  };
 
   const handleLogout = async () => {
     await signOut();
     router.push('/auth');
-  };
-
-  const handleReset = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir réinitialiser votre compte ? Tous vos paris et gains seront effacés. Cette action est irréversible.')) {
-      return;
-    }
-
-    setIsResetting(true);
-    try {
-      await resetUserAccount();
-      await refreshProfile();
-      window.dispatchEvent(new Event('profile-updated'));
-      alert('Compte réinitialisé avec succès !');
-      router.push('/');
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de la réinitialisation');
-    } finally {
-      setIsResetting(false);
-    }
   };
 
   if (!profile) {
@@ -112,59 +147,50 @@ export default function ProfilPage() {
             })}
           </div>
 
-          <h3 className="text-xl font-bold text-white mb-4">Réalisations</h3>
+          <h3 className="text-xl font-bold text-white mb-4">🎖️ Réalisations</h3>
 
-          <div className="space-y-3">
-            <div className="bg-gradient-to-br from-[#F5C144]/20 to-[#E5B134]/10 border border-[#F5C144]/30 rounded-2xl p-4 card-shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#F5C144]/20 flex items-center justify-center">
-                  <Trophy className="text-[#F5C144]" size={24} />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-white font-bold">Premier Pari</h4>
-                  <p className="text-white/50 text-sm">Placer votre premier pari</p>
-                </div>
-                <span className="text-[#F5C144] font-bold">✓</span>
-              </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <p className="text-white/50">Chargement...</p>
             </div>
-
-            <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-4 opacity-50 card-shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#0D1117] flex items-center justify-center">
-                  <Trophy className="text-white/30" size={24} />
+          ) : (
+            <div className="space-y-3 mb-32">
+              {achievements.map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className={`rounded-2xl p-4 card-shadow transition-all ${
+                    achievement.claimed
+                      ? 'bg-gray-800/50 border border-gray-700/50 opacity-60'
+                      : 'bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      achievement.claimed ? 'bg-gray-700/50' : 'bg-[#F5C144]/20'
+                    }`}>
+                      <Trophy className={achievement.claimed ? 'text-gray-500' : 'text-[#F5C144]'} size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-white font-bold">{achievement.title}</h4>
+                      <p className="text-white/50 text-sm">{achievement.description}</p>
+                      <p className="text-[#F5C144] text-sm font-semibold mt-1">+{achievement.reward} 💰</p>
+                    </div>
+                    {achievement.claimed ? (
+                      <span className="text-green-400 text-sm font-semibold">🎉 Réclamée</span>
+                    ) : (
+                      <button
+                        onClick={() => handleClaimReward(achievement.id, achievement.link)}
+                        className="bg-[#F5C144] hover:bg-[#E5B134] text-black font-semibold px-4 py-2 rounded-xl transition-colors flex items-center gap-2"
+                      >
+                        Récupérer
+                        {achievement.link && <ExternalLink size={16} />}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-white font-bold">Série de Victoires</h4>
-                  <p className="text-white/50 text-sm">Gagner 5 paris d'affilée</p>
-                </div>
-                <span className="text-white/30 font-bold">🔒</span>
-              </div>
+              ))}
             </div>
-
-            <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-4 opacity-50 card-shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#0D1117] flex items-center justify-center">
-                  <TrendingUp className="text-white/30" size={24} />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-white font-bold">Expert</h4>
-                  <p className="text-white/50 text-sm">Atteindre 100 paris gagnés</p>
-                </div>
-                <span className="text-white/30 font-bold">🔒</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <button
-              onClick={handleReset}
-              disabled={isResetting}
-              className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 rounded-xl p-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <RefreshCcw size={20} className={isResetting ? 'animate-spin' : ''} />
-              {isResetting ? 'Réinitialisation...' : 'Réinitialiser le compte'}
-            </button>
-          </div>
+          )}
 
         </div>
     </>

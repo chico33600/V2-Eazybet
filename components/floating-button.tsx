@@ -48,11 +48,12 @@ export function FloatingButton({ onClick }: FloatingButtonProps) {
                   },
                 }
           }
-          className="relative w-full text-black font-extrabold py-4 px-5 rounded-2xl
+          className="relative w-full text-white font-extrabold py-4 px-5 rounded-2xl
             flex items-center justify-center gap-2.5 overflow-hidden
-            bg-gradient-to-br from-[#FFD700] via-[#F5C144] to-[#E5B134]
-            shadow-[0_20px_50px_-12px_rgba(245,193,68,0.5),0_10px_25px_-5px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.4)]
-            border-2 border-[#FFE570]/50
+            bg-gradient-to-br from-[#C1322B] via-[#8A2BE2] to-[#007BFF]
+            hover:from-[#E03E34] hover:via-[#A040F0] hover:to-[#1A8FFF]
+            shadow-[0_20px_50px_-12px_rgba(138,43,226,0.5),0_10px_25px_-5px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.2)]
+            border-2 border-[#8A2BE2]/50
             backdrop-blur-sm"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-200%] animate-shimmer" />
@@ -69,7 +70,7 @@ export function FloatingButton({ onClick }: FloatingButtonProps) {
             }
             transition={{ duration: 0.6, ease: 'easeOut' }}
             style={{
-              background: 'radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(245,193,68,0) 70%)',
+              background: 'radial-gradient(circle, rgba(138,43,226,0.8) 0%, rgba(193,50,43,0) 70%)',
             }}
           />
 
@@ -103,12 +104,12 @@ export function FloatingButton({ onClick }: FloatingButtonProps) {
                 ease: 'easeInOut',
               }}
             >
-              <Sparkles size={18} className="text-yellow-900/70" />
+              <Sparkles size={18} className="text-white/70" />
             </motion.div>
           </div>
 
           <div className="absolute -top-1 -right-1 w-20 h-20 bg-white/20 rounded-full blur-2xl" />
-          <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-yellow-400/20 rounded-full blur-xl" />
+          <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-purple-500/20 rounded-full blur-xl" />
         </motion.button>
       </div>
     </div>

@@ -26,6 +26,7 @@ export default function ProfilPage() {
     try {
       await resetUserAccount();
       await refreshProfile();
+      window.dispatchEvent(new Event('profile-updated'));
       alert('Compte réinitialisé avec succès !');
       router.push('/');
     } catch (error: any) {

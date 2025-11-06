@@ -1,12 +1,32 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Gift, CheckCircle2, Sparkles, Calendar, Users, Trophy } from 'lucide-react';
-import { useUserStore } from '@/lib/store';
+import { useAuth } from '@/lib/auth-context';
 
 export default function AirdropPage() {
-  const { diamonds } = useUserStore();
+  const { profile, refreshProfile } = useAuth();
+  const diamonds = profile?.diamonds || 0;
   const eligibilityThreshold = 1000;
   const isEligible = diamonds >= eligibilityThreshold;
+
+  useEffect(() => {
+    const handleBetPlaced = () => {
+      refreshProfile();
+    };
+
+    const handleProfileUpdated = () => {
+      refreshProfile();
+    };
+
+    window.addEventListener('bet-placed', handleBetPlaced);
+    window.addEventListener('profile-updated', handleProfileUpdated);
+
+    return () => {
+      window.removeEventListener('bet-placed', handleBetPlaced);
+      window.removeEventListener('profile-updated', handleProfileUpdated);
+    };
+  }, [refreshProfile]);
 
   const criteria = [
     { icon: Trophy, label: 'Accumuler 1000 💎 diamants minimum', achieved: isEligible },

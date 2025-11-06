@@ -20,7 +20,30 @@ export function MatchCard({ match }: MatchCardProps) {
     return selections.some(s => s.match.id === match.id && s.betType === betType);
   };
 
-  const backgroundImage = 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg';
+  // Map leagues and teams to stadium images from Pexels
+  const getBackgroundImage = () => {
+    // High quality stadium images from Pexels
+    const stadiumImages = [
+      'https://images.pexels.com/photos/209841/pexels-photo-209841.jpeg', // Big stadium night
+      'https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg', // Stadium aerial view
+      'https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg', // Green pitch
+      'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg', // Classic stadium
+      'https://images.pexels.com/photos/270085/pexels-photo-270085.jpeg', // Night game
+      'https://images.pexels.com/photos/399187/pexels-photo-399187.jpeg', // Packed stadium
+      'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg', // Field close-up
+      'https://images.pexels.com/photos/1884576/pexels-photo-1884576.jpeg', // Stadium lights
+      'https://images.pexels.com/photos/290030/pexels-photo-290030.jpeg', // Goal net view
+      'https://images.pexels.com/photos/262524/pexels-photo-262524.jpeg', // Stadium atmosphere
+    ];
+
+    // Create a consistent hash from match ID to always show the same image for the same match
+    const matchHash = match.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const imageIndex = matchHash % stadiumImages.length;
+
+    return stadiumImages[imageIndex];
+  };
+
+  const backgroundImage = getBackgroundImage();
 
   return (
     <div className="relative rounded-3xl overflow-hidden card-shadow border border-[#30363D] h-[360px]">

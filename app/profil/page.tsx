@@ -86,7 +86,6 @@ export default function ProfilPage() {
   ];
 
   return (
-    <>
     <div className="max-w-2xl mx-auto px-4">
           <div className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-6 card-shadow">
             <div className="flex items-center gap-4 mb-4">
@@ -191,8 +190,6 @@ export default function ProfilPage() {
               ))}
             </div>
           )}
-
         </div>
-    </>
   );
 }

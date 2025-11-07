@@ -2,33 +2,56 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 let supabaseInstance: SupabaseClient | null = null;
 
-export function getSupabaseClient(): SupabaseClient {
-  if (supabaseInstance) {
-    return supabaseInstance;
+function getSupabaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   }
+  return process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+}
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+function getSupabaseKey(): string {
+  if (typeof window !== 'undefined') {
+    return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  }
+  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+}
+
+function initSupabase(): SupabaseClient {
+  const supabaseUrl = getSupabaseUrl();
+  const supabaseAnonKey = getSupabaseKey();
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+    if (typeof window === 'undefined') {
+      console.warn('Supabase env vars missing during build - returning stub client');
+      return {} as SupabaseClient;
+    }
+    throw new Error('Missing Supabase environment variables. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
   }
 
-  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+  return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
   });
+}
 
+export function getSupabaseClient(): SupabaseClient {
+  if (!supabaseInstance) {
+    supabaseInstance = initSupabase();
+  }
   return supabaseInstance;
 }
 
-// Legacy export for backward compatibility
 export const supabase = new Proxy({} as SupabaseClient, {
-  get(target, prop) {
-    return getSupabaseClient()[prop as keyof SupabaseClient];
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    const value = client[prop as keyof SupabaseClient];
+    if (typeof value === 'function') {
+      return value.bind(client);
+    }
+    return value;
   }
 });
 

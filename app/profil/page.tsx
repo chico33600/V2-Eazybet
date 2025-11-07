@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase-client';
-import { Trophy, TrendingUp, Calendar, LogOut, Settings, ExternalLink, Award } from 'lucide-react';
+import { Trophy, TrendingUp, Calendar, LogOut, Settings, ExternalLink } from 'lucide-react';
 
 interface Achievement {
   id: string;
@@ -15,46 +15,15 @@ interface Achievement {
   claimed: boolean;
 }
 
-interface UserRank {
-  rank: number;
-  user_id: string;
-  username: string;
-  avatar_url: string | null;
-  score: number;
-}
-
 export default function ProfilPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [userRank, setUserRank] = useState<UserRank | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rankLoading, setRankLoading] = useState(true);
   const { profile, signOut, refreshProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     loadAchievements();
-    loadUserRank();
-  }, [profile?.id]);
-
-  const loadUserRank = async () => {
-    if (!profile?.id) {
-      setRankLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/leaderboard?userId=${profile.id}`);
-      const data = await response.json();
-
-      if (data.success && data.data.user_rank) {
-        setUserRank(data.data.user_rank);
-      }
-    } catch (error) {
-      console.error('Error loading user rank:', error);
-    } finally {
-      setRankLoading(false);
-    }
-  };
+  }, []);
 
   const loadAchievements = async () => {
     try {
@@ -152,7 +121,6 @@ export default function ProfilPage() {
     { icon: Trophy, label: 'Paris total', value: profile.total_bets, color: 'text-[#F5C144]' },
     { icon: TrendingUp, label: 'Paris gagnés', value: profile.won_bets, color: 'text-green-400' },
     { icon: Calendar, label: 'Taux de réussite', value: `${profile.total_bets > 0 ? Math.round((profile.won_bets / profile.total_bets) * 100) : 0}%`, color: 'text-[#2A84FF]' },
-    { icon: Award, label: 'Classement', value: rankLoading ? '...' : userRank ? `#${userRank.rank}` : 'N/A', color: 'text-purple-400' },
   ];
 
   return (
@@ -201,22 +169,16 @@ export default function ProfilPage() {
           <div className="grid grid-cols-2 gap-3 mb-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
-              const isRank = stat.label === 'Classement';
               return (
                 <div
                   key={index}
-                  className={`bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-4 card-shadow ${
-                    isRank && userRank && userRank.rank <= 3 ? 'ring-2 ring-purple-500/50' : ''
-                  }`}
+                  className="bg-gradient-to-br from-[#1C2128] to-[#161B22] border border-[#30363D] rounded-2xl p-4 card-shadow"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <Icon size={20} className={stat.color} />
                     <p className="text-white/50 text-sm">{stat.label}</p>
                   </div>
                   <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                  {isRank && userRank && userRank.rank <= 3 && (
-                    <p className="text-xs text-purple-400 mt-1">🏆 Top 3!</p>
-                  )}
                 </div>
               );
             })}

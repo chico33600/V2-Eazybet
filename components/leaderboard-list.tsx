@@ -43,7 +43,8 @@ export function LeaderboardList() {
     }
 
     try {
-      const response = await fetch(`/api/leaderboard?limit=${LIMIT}&offset=${offset}`);
+      const currentOffset = isLoadMore ? offset : 0;
+      const response = await fetch(`/api/leaderboard?limit=${LIMIT}&offset=${currentOffset}`);
       const data = await response.json();
 
       if (data.success) {
@@ -52,12 +53,13 @@ export function LeaderboardList() {
 
         if (isLoadMore) {
           setEntries((prev) => [...prev, ...newEntries]);
+          setOffset(currentOffset + newEntries.length);
         } else {
           setEntries(newEntries);
+          setOffset(newEntries.length);
         }
 
-        setHasMore(newEntries.length === LIMIT && offset + LIMIT < data.data.total);
-        setOffset((prev) => prev + newEntries.length);
+        setHasMore(newEntries.length === LIMIT && currentOffset + newEntries.length < data.data.total);
       }
     } catch (error) {
       console.error('Error loading leaderboard:', error);

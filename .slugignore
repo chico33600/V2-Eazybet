@@ -1,0 +1,9 @@
+node_modules/
+.git/
+*.md
+attached_assets/
+scripts/
+supabase/migrations/
+.env.example
+coverage/
+.nyc_output/

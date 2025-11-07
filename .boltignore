@@ -1,7 +1,40 @@
+# Dependencies
 node_modules
+node_modules/**
+
+# Git
 .git
+.gitignore
+
+# Documentation (reduce size)
 *.md
+!README.md
 attached_assets
 scripts
+
+# Database migrations (already in Supabase)
 supabase/migrations
+supabase/**/*.sql
+
+# Environment
 .env.example
+.env.local
+.env*.local
+
+# Build artifacts we don't need
+.next/cache
+.next/static/**/*.map
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.DS_Store
+*.pem

@@ -36,9 +36,9 @@ export async function requireAuth(request: NextRequest) {
 }
 
 export function createErrorResponse(message: string, status: number = 400) {
-  return Response.json({ error: message }, { status });
+  return Response.json({ success: false, error: message }, { status });
 }
 
 export function createSuccessResponse(data: any, status: number = 200) {
-  return Response.json(data, { status });
+  return Response.json({ success: true, data }, { status });
 }

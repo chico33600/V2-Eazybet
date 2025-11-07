@@ -103,13 +103,15 @@ export default function AuthPage() {
               if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Failed to create referral:', errorData);
+                setSuccess('Inscription réussie 🎉');
               } else {
                 const successData = await response.json();
                 console.log('Referral created successfully:', successData);
-                setSuccess('Inscription réussie 🎉 Vous et votre parrain avez reçu 10💎!');
+                setSuccess('Inscription réussie 🎉 Vous et votre parrain avez reçu 10💎 et êtes maintenant amis !');
               }
             } catch (refError) {
               console.error('Failed to create referral:', refError);
+              setSuccess('Inscription réussie 🎉');
             }
           } else {
             setSuccess('Inscription réussie 🎉');
@@ -117,7 +119,7 @@ export default function AuthPage() {
 
           setTimeout(() => {
             router.push('/');
-          }, 2000);
+          }, 2500);
           return;
         }
       }

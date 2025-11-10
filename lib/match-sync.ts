@@ -28,7 +28,15 @@ export async function syncMatches(): Promise<SyncResponse> {
 
     if (functionError) {
       console.error('⚠️ Erreur lors de la synchronisation:', functionError);
-      throw functionError;
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('matches-synced', { detail: null }));
+      }
+
+      return {
+        success: false,
+        error: functionError.message,
+      };
     }
 
     const response = functionData as SyncResponse;
@@ -51,6 +59,11 @@ export async function syncMatches(): Promise<SyncResponse> {
     return response;
   } catch (error) {
     console.error('⚠️ Erreur lors de la synchronisation:', error);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('matches-synced', { detail: null }));
+    }
+
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

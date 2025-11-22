@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { requireAuth, createErrorResponse, createSuccessResponse } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
@@ -20,8 +21,11 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('Amount must be between 1 and 100', 400);
     }
 
+    // Use admin client to bypass RLS
+    const supabaseAdmin = getSupabaseAdminClient();
+
     // Get current profile
-    const { data: profile, error: profileError } = await supabaseServer
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('tokens, diamonds')
       .eq('id', user!.id)
@@ -34,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Update tokens
     const newTokens = profile.tokens + amount;
-    const { error: updateError } = await supabaseServer
+    const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({ tokens: newTokens })
       .eq('id', user!.id);

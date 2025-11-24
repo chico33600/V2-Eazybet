@@ -88,10 +88,7 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
 
       const result = await earnTokens(tapCount);
       console.log('[Tap-to-Earn] API result:', JSON.stringify(result));
-
-      console.log('[Tap-to-Earn] Refreshing profile...');
-      await refreshProfile();
-      console.log('[Tap-to-Earn] Profile refreshed, new balance should be:', result.new_balance);
+      console.log('[Tap-to-Earn] New balance should be:', result.new_balance);
 
       const coinCount = 5;
       const newCoins: FlyingCoin[] = [];
@@ -121,6 +118,7 @@ export function TapToEarnModal({ open, onOpenChange }: TapToEarnModalProps) {
       onOpenChange(false);
 
       console.log('[Tap-to-Earn] Collection complete');
+      console.log('[Tap-to-Earn] Profile should now show:', result.new_balance, 'tokens');
     } catch (error: any) {
       console.error('[Tap-to-Earn] Error earning tokens:', error);
       console.error('[Tap-to-Earn] Error details:', error.message);

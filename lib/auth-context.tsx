@@ -94,14 +94,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const handleProfileUpdated = (event: CustomEvent) => {
-      console.log('[AuthContext] Profile updated event:', event.detail);
-      if (profile) {
-        setProfile({
-          ...profile,
+      console.log('[AuthContext] Profile updated event received:', event.detail);
+      setProfile((prevProfile) => {
+        if (!prevProfile) {
+          console.log('[AuthContext] No previous profile, skipping update');
+          return prevProfile;
+        }
+        console.log('[AuthContext] Updating profile from', prevProfile.tokens, 'to', event.detail.tokens);
+        return {
+          ...prevProfile,
           tokens: event.detail.tokens,
           diamonds: event.detail.diamonds
-        });
-      }
+        };
+      });
     };
 
     window.addEventListener('profile-updated', handleProfileUpdated as EventListener);
@@ -110,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
       window.removeEventListener('profile-updated', handleProfileUpdated as EventListener);
     };
-  }, [profile]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {

@@ -418,14 +418,16 @@ export async function earnTokens(taps: number = 1) {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
-    console.error('[earnTokens] No session found!');
+    console.error('[earnTokens] ❌ No session found!');
     throw new Error('Non authentifié');
   }
 
-  const tokensEarned = Math.min(taps * 1, 100);
+  console.log('[earnTokens] ✅ Session found, user:', session.user.id);
 
+  const tokensEarned = Math.min(taps * 1, 100);
   console.log('[earnTokens] Tokens to earn:', tokensEarned);
 
+  console.log('[earnTokens] 📡 Calling API /api/user/add-tokens...');
   const response = await fetch('/api/user/add-tokens', {
     method: 'POST',
     headers: {
@@ -435,16 +437,21 @@ export async function earnTokens(taps: number = 1) {
     body: JSON.stringify({ amount: tokensEarned }),
   });
 
+  console.log('[earnTokens] API response status:', response.status);
+
   if (!response.ok) {
     const error = await response.json();
-    console.error('[earnTokens] API error:', error);
+    console.error('[earnTokens] ❌ API error:', error);
     throw new Error(error.error || 'Erreur lors de l\'ajout des jetons');
   }
 
   const data = await response.json();
-  console.log('[earnTokens] API response:', data);
+  console.log('[earnTokens] ✅ API response data:', data);
+  console.log('[earnTokens] - success:', data.success);
+  console.log('[earnTokens] - data.tokens:', data.data?.tokens);
+  console.log('[earnTokens] - data.diamonds:', data.data?.diamonds);
 
-  console.log('[earnTokens] Inserting tap record...');
+  console.log('[earnTokens] 📝 Inserting tap record...');
   const { error: insertError } = await supabase
     .from('tap_earnings')
     .insert({
@@ -453,15 +460,19 @@ export async function earnTokens(taps: number = 1) {
     });
 
   if (insertError) {
-    console.warn('[earnTokens] Insert error (non-critical):', insertError);
+    console.warn('[earnTokens] ⚠️ Insert error (non-critical):', insertError);
+  } else {
+    console.log('[earnTokens] ✅ Tap record inserted');
   }
 
+  console.log('[earnTokens] 📢 Dispatching profile-updated event...');
   window.dispatchEvent(new CustomEvent('profile-updated', {
     detail: {
       tokens: data.data.tokens,
       diamonds: data.data.diamonds
     }
   }));
+  console.log('[earnTokens] ✅ Event dispatched');
 
   const result = {
     tokens_earned: tokensEarned,
@@ -471,7 +482,7 @@ export async function earnTokens(taps: number = 1) {
   };
 
   console.log('[earnTokens] ========== SUCCESS ==========');
-  console.log('[earnTokens] Returning:', result);
+  console.log('[earnTokens] 📦 Returning result:', result);
 
   return result;
 }

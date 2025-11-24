@@ -248,18 +248,15 @@ export async function earnTokens(taps: number = 1) {
   }
 
   console.log('[earnTokens] ✅ Session found, user:', session.user.id);
+  console.log('[earnTokens] 📡 Calling API /api/user/tap-earn...');
 
-  const tokensEarned = Math.min(taps * 1, 100);
-  console.log('[earnTokens] Tokens to earn:', tokensEarned);
-
-  console.log('[earnTokens] 📡 Calling API /api/user/add-tokens...');
-  const response = await fetch('/api/user/add-tokens', {
+  const response = await fetch('/api/user/tap-earn', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${session.access_token}`,
     },
-    body: JSON.stringify({ amount: tokensEarned }),
+    body: JSON.stringify({ taps }),
   });
 
   console.log('[earnTokens] API response status:', response.status);
@@ -272,38 +269,30 @@ export async function earnTokens(taps: number = 1) {
 
   const data = await response.json();
   console.log('[earnTokens] ✅ API response data:', data);
-  console.log('[earnTokens] - success:', data.success);
-  console.log('[earnTokens] - data.tokens:', data.data?.tokens);
-  console.log('[earnTokens] - data.diamonds:', data.data?.diamonds);
 
-  console.log('[earnTokens] 📝 Inserting tap record...');
-  const { error: insertError } = await supabase
-    .from('tap_earnings')
-    .insert({
-      user_id: session.user.id,
-      tokens_earned: tokensEarned,
-    });
-
-  if (insertError) {
-    console.warn('[earnTokens] ⚠️ Insert error (non-critical):', insertError);
-  } else {
-    console.log('[earnTokens] ✅ Tap record inserted');
+  if (!data.success || !data.data) {
+    console.error('[earnTokens] ⚠️ Invalid response format:', data);
+    throw new Error('Format de réponse invalide');
   }
+
+  const tokensEarned = data.data.tokens_earned;
+  const newBalance = data.data.new_balance;
+  const diamonds = data.data.diamonds || 0;
 
   console.log('[earnTokens] 📢 Dispatching profile-updated event...');
   window.dispatchEvent(new CustomEvent('profile-updated', {
     detail: {
-      tokens: data.data.tokens,
-      diamonds: data.data.diamonds
+      tokens: newBalance,
+      diamonds: diamonds
     }
   }));
   console.log('[earnTokens] ✅ Event dispatched');
 
   const result = {
     tokens_earned: tokensEarned,
-    new_balance: data.data.tokens,
-    diamonds: data.data.diamonds,
-    remaining_taps: null,
+    new_balance: newBalance,
+    diamonds: diamonds,
+    remaining_taps: data.data.remaining_taps,
   };
 
   console.log('[earnTokens] ========== SUCCESS ==========');

@@ -1,8 +1,11 @@
 import { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase-client';
+import { createClient } from '@/lib/supabase/server';
 import { createErrorResponse, createSuccessResponse } from '@/lib/auth-utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
+  const supabase = createClient();
   try {
     const body = await request.json();
     const { username, email, password, avatar_url } = body;
@@ -18,14 +21,14 @@ export async function POST(request: NextRequest) {
     }
 
     if (username) {
-      const { data: existingProfile } = await supabase
-        .from('profiles')
+      const { data: existingUser } = await supabase
+        .from('users')
         .select('id')
         .eq('username', username)
         .neq('id', user.id)
         .maybeSingle();
 
-      if (existingProfile) {
+      if (existingUser) {
         return createErrorResponse('Ce pseudo est déjà utilisé', 400);
       }
     }
@@ -41,16 +44,16 @@ export async function POST(request: NextRequest) {
 
     const updates: any = {};
     if (username) updates.username = username;
-    if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+    if (avatar_url !== undefined) updates.avatar = avatar_url;
 
     if (Object.keys(updates).length > 0) {
-      const { error: profileError } = await supabase
-        .from('profiles')
+      const { error: userError } = await supabase
+        .from('users')
         .update(updates)
         .eq('id', user.id);
 
-      if (profileError) {
-        console.error('Profile update error:', profileError);
+      if (userError) {
+        console.error('User update error:', userError);
         return createErrorResponse('Erreur lors de la mise à jour du profil', 500);
       }
     }
@@ -68,15 +71,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data: updatedProfile } = await supabase
-      .from('profiles')
+    const { data: updatedUser } = await supabase
+      .from('users')
       .select('*')
       .eq('id', user.id)
       .maybeSingle();
 
     return createSuccessResponse({
       message: 'Profil mis à jour avec succès',
-      profile: updatedProfile
+      profile: updatedUser
     });
 
   } catch (error: any) {

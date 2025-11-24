@@ -41,7 +41,8 @@ async function fetchMatchesFromOddsAPI(): Promise<any[]> {
   const apiKey = process.env.ODDS_API_KEY;
 
   if (!apiKey) {
-    throw new Error('ODDS_API_KEY not configured');
+    console.log('[Odds API] No API key configured, returning empty array');
+    return [];
   }
 
   const allMatches: any[] = [];
@@ -187,17 +188,14 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('[Odds API] Sync error:', error);
 
-    if (error.message.includes('ODDS_API_KEY')) {
-      return NextResponse.json(
-        { error: 'Odds API not configured. Please add ODDS_API_KEY to environment variables.' },
-        { status: 503 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Failed to sync matches from Odds API' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      message: 'Odds API not available, matches may be limited',
+      total: 0,
+      inserted: 0,
+      updated: 0,
+      cached: false,
+      warning: 'ODDS_API_KEY not configured. Add it to enable real matches.',
+    });
   }
 }
 

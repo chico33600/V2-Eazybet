@@ -1,40 +1,50 @@
 import { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase-client';
+import { createClient } from '@/lib/supabase/server';
 import { requireAuth, createErrorResponse, createSuccessResponse } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const { user, response } = await requireAuth(request);
     if (response) return response;
 
-    // Get user profile
-    const { data: profile, error } = await supabase
-      .from('profiles')
+    const supabase = createClient();
+
+    const { data: userData, error: userError } = await supabase
+      .from('users')
       .select('*')
       .eq('id', user!.id)
       .maybeSingle();
 
-    if (error) {
-      return createErrorResponse('Failed to fetch profile', 500);
+    if (userError || !userData) {
+      return createErrorResponse('Failed to fetch user', 500);
     }
 
-    if (!profile) {
-      return createErrorResponse('Profile not found', 404);
+    const { data: walletData, error: walletError } = await supabase
+      .from('wallet')
+      .select('*')
+      .eq('user_id', user!.id)
+      .maybeSingle();
+
+    if (walletError || !walletData) {
+      return createErrorResponse('Failed to fetch wallet', 500);
     }
+
+    const totalBets = walletData.total_bets || 0;
+    const wonBets = walletData.won_bets || 0;
 
     return createSuccessResponse({
       profile: {
-        id: profile.id,
-        username: profile.username,
-        avatar_url: profile.avatar_url,
-        tokens: profile.tokens,
-        diamonds: profile.diamonds,
-        total_bets: profile.total_bets,
-        won_bets: profile.won_bets,
-        win_rate: profile.total_bets > 0
-          ? Math.round((profile.won_bets / profile.total_bets) * 100)
-          : 0,
-        created_at: profile.created_at,
+        id: userData.id,
+        username: userData.username,
+        avatar_url: userData.avatar || '',
+        tokens: walletData.tokens,
+        diamonds: walletData.diamonds,
+        total_bets: totalBets,
+        won_bets: wonBets,
+        win_rate: totalBets > 0 ? Math.round((wonBets / totalBets) * 100) : 0,
+        created_at: userData.created_at,
       },
     });
 
@@ -49,6 +59,7 @@ export async function PATCH(request: NextRequest) {
     const { user, response } = await requireAuth(request);
     if (response) return response;
 
+    const supabase = createClient();
     const body = await request.json();
     const { username, avatar_url } = body;
 
@@ -59,15 +70,14 @@ export async function PATCH(request: NextRequest) {
         return createErrorResponse('Username must be at least 3 characters', 400);
       }
 
-      // Check if username is already taken
-      const { data: existingProfile } = await supabase
-        .from('profiles')
+      const { data: existingUser } = await supabase
+        .from('users')
         .select('id')
         .eq('username', username)
         .neq('id', user!.id)
         .maybeSingle();
 
-      if (existingProfile) {
+      if (existingUser) {
         return createErrorResponse('Username already taken', 400);
       }
 
@@ -75,16 +85,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (avatar_url !== undefined) {
-      updates.avatar_url = avatar_url;
+      updates.avatar = avatar_url;
     }
 
     if (Object.keys(updates).length === 0) {
       return createErrorResponse('No valid fields to update', 400);
     }
 
-    // Update profile
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .update(updates)
       .eq('id', user!.id)
       .select()

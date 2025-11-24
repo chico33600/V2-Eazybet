@@ -28,22 +28,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log(`[fetchProfile] Fetching profile for user ${userId}, forceRefresh: ${forceRefresh}`);
 
-      const query = supabase
-        .from('profiles')
+      const { data: userData, error: userError } = await supabase
+        .from('users')
         .select('*')
-        .eq('id', userId);
+        .eq('id', userId)
+        .maybeSingle();
 
-      const { data, error } = await query.maybeSingle();
-
-      if (error) {
-        console.error('[fetchProfile] Error:', error);
+      if (userError) {
+        console.error('[fetchProfile] User error:', userError);
         return;
       }
 
-      if (data) {
-        console.log(`[fetchProfile] Loaded profile with ${data.tokens} tokens, diamonds: ${data.diamonds}, role: ${data.role}`);
-        console.log('[fetchProfile] Setting profile state...');
-        setProfile({ ...data });
+      const { data: walletData, error: walletError } = await supabase
+        .from('wallet')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (walletError) {
+        console.error('[fetchProfile] Wallet error:', walletError);
+        return;
+      }
+
+      if (userData && walletData) {
+        const profileData = {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+          tokens: walletData.tokens,
+          diamonds: walletData.diamonds,
+          avatar_url: userData.avatar || '',
+          role: userData.is_admin ? 'admin' : 'user',
+          has_seen_tutorial: true,
+        };
+        console.log(`[fetchProfile] Loaded profile with ${profileData.tokens} tokens, diamonds: ${profileData.diamonds}`);
+        setProfile(profileData as any);
         console.log('[fetchProfile] Profile state updated');
       } else {
         console.log('[fetchProfile] No profile data returned');
@@ -161,36 +180,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, username: string, referrerId?: string | null) => {
     try {
-      const { data: existingProfile } = await supabase
-        .from('profiles')
+      const { data: existingUser } = await supabase
+        .from('users')
         .select('username')
         .eq('username', username)
         .maybeSingle();
 
-      if (existingProfile) {
+      if (existingUser) {
         return { error: 'Username already taken' };
       }
 
-      const metadata: any = { username };
-      if (referrerId) {
-        metadata.referrer_id = referrerId;
-      }
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          password,
+          username,
+          referralCode: referrerId,
+        }),
       });
 
-      if (error) {
-        return { error: error.message };
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || 'Registration failed' };
       }
 
       if (data.user) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        await fetchProfile(data.user.id);
+        const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          return { error: signInError.message };
+        }
+
+        await fetchProfile(authData.user!.id);
       }
 
       return { error: null, data: { user: data.user } };

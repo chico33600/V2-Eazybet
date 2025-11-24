@@ -1,5 +1,4 @@
 export { supabaseBrowser, getSupabaseBrowserClient } from './browser';
-export { supabaseServer, getSupabaseServerClient } from './server';
-export { supabaseAdmin, getSupabaseAdminClient } from './admin';
+export { createClient, createAdminClient } from './server';
 
 export * from './types';

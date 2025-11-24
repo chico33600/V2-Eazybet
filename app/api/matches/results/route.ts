@@ -8,12 +8,13 @@ export async function GET(request: NextRequest) {
     const { data: matches, error } = await supabase
       .from('matches')
       .select('*')
-      .in('status', ['UPCOMING', 'LIVE'])
-      .order('start_time', { ascending: true });
+      .eq('status', 'FINISHED')
+      .order('start_time', { ascending: false })
+      .limit(50);
 
     if (error) {
       return NextResponse.json(
-        { error: 'Failed to fetch matches' },
+        { error: 'Failed to fetch match results' },
         { status: 500 }
       );
     }
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ matches: matches || [] });
 
   } catch (error: any) {
-    console.error('Matches fetch error:', error);
+    console.error('Match results fetch error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

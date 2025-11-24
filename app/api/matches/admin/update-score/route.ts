@@ -1,36 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export async function GET(request: NextRequest) {
-  try {
-    const supabase = createClient();
-
-    const { data: leaderboard, error } = await supabase
-      .from('leaderboard')
-      .select('*')
-      .order('rank', { ascending: true })
-      .limit(100);
-
-    if (error) {
-      return NextResponse.json(
-        { error: 'Failed to fetch leaderboard' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      leaderboard: leaderboard || [],
-    });
-
-  } catch (error: any) {
-    console.error('Leaderboard fetch error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -68,29 +38,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
-      .rpc('refresh_leaderboard');
+    const { matchId, scoreHome, scoreAway, status } = await request.json();
+
+    if (!matchId || scoreHome === undefined || scoreAway === undefined) {
+      return NextResponse.json(
+        { error: 'Match ID and scores are required' },
+        { status: 400 }
+      );
+    }
+
+    const { data: match, error } = await supabase
+      .from('matches')
+      .update({
+        score_home: scoreHome,
+        score_away: scoreAway,
+        status: status || 'FINISHED',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', matchId)
+      .select()
+      .single();
 
     if (error) {
       return NextResponse.json(
-        { error: 'Failed to refresh leaderboard' },
+        { error: 'Failed to update match score' },
         { status: 500 }
       );
     }
 
-    const { data: leaderboard } = await supabase
-      .from('leaderboard')
-      .select('*')
-      .order('rank', { ascending: true })
-      .limit(100);
+    await supabase
+      .from('system_logs')
+      .insert({
+        type: 'match_score_updated',
+        payload: {
+          match_id: matchId,
+          score_home: scoreHome,
+          score_away: scoreAway,
+          updated_by: user.id,
+        },
+      });
 
     return NextResponse.json({
-      message: 'Leaderboard refreshed successfully',
-      leaderboard: leaderboard || [],
+      message: 'Match score updated successfully',
+      match,
     });
 
   } catch (error: any) {
-    console.error('Leaderboard refresh error:', error);
+    console.error('Match score update error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

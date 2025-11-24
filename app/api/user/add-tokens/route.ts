@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server';
-import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { requireAuth, createErrorResponse, createSuccessResponse } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
@@ -21,27 +20,27 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('Amount must be between 1 and 100', 400);
     }
 
-    // Use admin client to bypass RLS
-    const supabaseAdmin = getSupabaseAdminClient();
+    const supabaseAdmin = createAdminClient();
 
-    // Get current profile
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('tokens, diamonds')
-      .eq('id', user!.id)
-      .maybeSingle();
+    const { data: wallet, error: walletError } = await supabaseAdmin
+      .from('wallet')
+      .select('tokens, diamonds, total_earned_tokens')
+      .eq('user_id', user!.id)
+      .single();
 
-    if (profileError || !profile) {
-      console.error('[ADD-TOKENS] Profile error:', profileError);
-      return createErrorResponse('Profile not found', 404);
+    if (walletError || !wallet) {
+      console.error('[ADD-TOKENS] Wallet error:', walletError);
+      return createErrorResponse('Wallet not found', 404);
     }
 
-    // Update tokens
-    const newTokens = profile.tokens + amount;
+    const newTokens = wallet.tokens + amount;
     const { error: updateError } = await supabaseAdmin
-      .from('profiles')
-      .update({ tokens: newTokens })
-      .eq('id', user!.id);
+      .from('wallet')
+      .update({
+        tokens: newTokens,
+        total_earned_tokens: wallet.total_earned_tokens + amount,
+      })
+      .eq('user_id', user!.id);
 
     if (updateError) {
       console.error('[ADD-TOKENS] Update error:', updateError);
@@ -53,7 +52,7 @@ export async function POST(request: NextRequest) {
     return createSuccessResponse({
       message: `Successfully added ${amount} tokens`,
       tokens: newTokens,
-      diamonds: profile.diamonds,
+      diamonds: wallet.diamonds,
       added: amount,
     });
 

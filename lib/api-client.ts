@@ -456,6 +456,13 @@ export async function earnTokens(taps: number = 1) {
     console.warn('[earnTokens] Insert error (non-critical):', insertError);
   }
 
+  window.dispatchEvent(new CustomEvent('profile-updated', {
+    detail: {
+      tokens: data.data.tokens,
+      diamonds: data.data.diamonds
+    }
+  }));
+
   const result = {
     tokens_earned: tokensEarned,
     new_balance: data.data.tokens,

@@ -93,8 +93,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })();
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    const handleProfileUpdated = (event: CustomEvent) => {
+      console.log('[AuthContext] Profile updated event:', event.detail);
+      if (profile) {
+        setProfile({
+          ...profile,
+          tokens: event.detail.tokens,
+          diamonds: event.detail.diamonds
+        });
+      }
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdated as EventListener);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('profile-updated', handleProfileUpdated as EventListener);
+    };
+  }, [profile]);
 
   const signIn = async (email: string, password: string) => {
     try {
